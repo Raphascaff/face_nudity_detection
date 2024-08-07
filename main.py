@@ -16,9 +16,6 @@ class UserImg(BaseModel):
 
 
 def get_image_from_url(image_url):
-    """
-    Provide the image from a public URL.
-    """
     try:
         response = requests.get(image_url, stream=True)
         response.raise_for_status()
@@ -27,10 +24,6 @@ def get_image_from_url(image_url):
         raise SystemExit(e)
 
 def detect_nudity(image_data):
-    """
-    This function will receive the image and then check for possible nudity
-    Returns a boolean
-    """
     detector = NudeDetector()
     try:
         detections = detector.detect(image_data)
@@ -41,10 +34,6 @@ def detect_nudity(image_data):
         return False
 
 def detect_face_in_image(image_data):
-    """
-    This function will receive the image and then check for possible face
-    Returns a boolean
-    """
     try:
         img_np = np.array(Image.open(BytesIO(image_data)))
         gray_img = cv2.cvtColor(img_np, cv2.COLOR_RGB2GRAY)
@@ -55,21 +44,8 @@ def detect_face_in_image(image_data):
         print(f"Error processing image: {e}")
         return False
 
-@app.post("/detect-face/")
-async def detect_face(image_url: UserImg):
-    """
-    It starts the API with a POST verb.
-    The body shall contain the user id from your database 
-    and will return the public url 
-    Returns a contract with message and boole indicating whether it has nudity or/and face
-    """
-    url = execut_query(get_user_url(image_url.user_id))
-    try:
-        image_data = get_image_from_url(url)
-        face_detected = detect_face_in_image(image_data)
-        nudity_detected = detect_nudity(image_data)
-        
-        match (face_detected, nudity_detected):
+def face_nudity_return(face_detect, nudity_detect):
+    match (face_detected, nudity_detected):
             case (True, True):
                 return {"face_detected": True, "nudity_detected": True, "message": "Both face and nudity were detected"}
             case (True, False):
@@ -78,6 +54,16 @@ async def detect_face(image_url: UserImg):
                 return {"face_detected": False, "nudity_detected": True, "message": "Nudity detected but face was not detected"}
             case (False, False):
                 return {"face_detected": False, "nudity_detected": False, "message": "Neither face nor nudity were detected"}
+
+@app.post("/detect-face/")
+async def detect_face(image_url: UserImg):
+    url = execut_query(get_user_url(image_url.user_id))
+    try:
+        image_data = get_image_from_url(url)
+        face_detected = detect_face_in_image(image_data)
+        nudity_detected = detect_nudity(image_data)
+        return face_nudity_return(face_detected, nudity_detected)
+
             
     except SystemExit as e:
         raise HTTPException(status_code=400, detail=f"Error fetching image from URL: {e}")
