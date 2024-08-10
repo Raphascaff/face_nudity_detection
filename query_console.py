@@ -1,10 +1,5 @@
-def get_user_url(idUsuario: int) -> str:
+def get_user_url(id: int) -> str:
     sql_query = (
-    "SELECT "
-    "usuario.foto "
-    "FROM "
-    "tb_usuario AS usuario "
-    f"WHERE usuario.id = {idUsuario};"
 )
     
     return sql_query
