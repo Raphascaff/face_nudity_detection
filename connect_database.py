@@ -2,9 +2,6 @@ import mysql.connector
 from dotenv import dotenv_values
 
 def connect_database():
-    """
-    Connect to your database using a properly setup .env file.
-    """
     database_var = dotenv_values()
     try:
         mydb = mysql.connector.connect(
