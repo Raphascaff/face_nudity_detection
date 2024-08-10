@@ -2,20 +2,9 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from connect_database import execut_query
 from query_console import get_user_url
-from nudity_face_controller import get_image_from_url, detect_face_in_image, detect_nudity
+from nudity_face_controller import get_image_from_url, detect_face_in_image, detect_nudity, face_controller
 
 app = FastAPI()
-
-def face_controller(face_detected, nudity_detected):
-    match (face_detected, nudity_detected):
-        case (True, True):
-            return {"face_detected": True, "nudity_detected": True, "message": "Both face and nudity were detected"}
-        case (True, False):
-            return {"face_detected": True, "nudity_detected": False, "message": "Face detected but nudity was not detected"}
-        case (False, True):
-            return {"face_detected": False, "nudity_detected": True, "message": "Nudity detected but face was not detected"}
-        case (False, False):
-            return {"face_detected": False, "nudity_detected": False, "message": "Neither face nor nudity were detected"}
 
 class UserImg(BaseModel):
     user_id: int

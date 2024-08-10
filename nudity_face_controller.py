@@ -34,3 +34,14 @@ def detect_face_in_image(image_data):
     except Exception as e:
         print(f"Error processing image: {e}")
         return False
+    
+def face_controller(face_detected, nudity_detected):
+    match (face_detected, nudity_detected):
+        case (True, True):
+            return {"face_detected": True, "nudity_detected": True, "message": "Both face and nudity were detected"}
+        case (True, False):
+            return {"face_detected": True, "nudity_detected": False, "message": "Face detected but nudity was not detected"}
+        case (False, True):
+            return {"face_detected": False, "nudity_detected": True, "message": "Nudity detected but face was not detected"}
+        case (False, False):
+            return {"face_detected": False, "nudity_detected": False, "message": "Neither face nor nudity were detected"}
